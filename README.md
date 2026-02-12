@@ -1,2 +1,132 @@
 # Student-id-management-system
 A complete Student ID Management Web Application built using HTML, CSS, and JavaScript. The system supports role-based login (Admin &amp; Student), student record management, dynamic filtering, ID card generation with barcode, reporting, and audit tracking.
+flowchart TD
+    Start([User Opens Web Application]) --> Login[Login Page]
+    
+    Login --> AuthInput[Enter Credentials<br/>Username & Password]
+    AuthInput --> Validate{Validate<br/>Credentials}
+    
+    Validate -->|Invalid| ErrorMsg[Display Error Message]
+    ErrorMsg --> Login
+    
+    Validate -->|Valid| RoleCheck{Identify<br/>User Role}
+    
+    %% ADMIN FLOW
+    RoleCheck -->|Admin| AdminDash[Admin Dashboard<br/>- Total Students<br/>- Active IDs<br/>- Expired IDs<br/>- Inactive IDs]
+    
+    AdminDash --> AdminMenu{Select Module}
+    
+    AdminMenu -->|Student Management| AddStudent[Add New Student Form<br/>- Personal Details<br/>- Academic Info<br/>- Contact Details<br/>- Upload Photo]
+    
+    AddStudent --> ValidateForm{Validate<br/>Form Data}
+    ValidateForm -->|Invalid| FormError[Show Validation Errors]
+    FormError --> AddStudent
+    
+    ValidateForm -->|Valid| SaveDB[(Store Student Record<br/>in Database)]
+    SaveDB --> GenID[Generate Unique<br/>Student ID]
+    GenID --> RecordCreated[Student Record Created]
+    RecordCreated --> AdminDash
+    
+    AdminMenu -->|View/Edit Records| ViewRecords[Display Student Records<br/>Table View]
+    ViewRecords --> RecordAction{Select Action}
+    RecordAction -->|Edit| EditRecord[Modify Student Details]
+    EditRecord --> UpdateDB[(Update Database)]
+    UpdateDB --> ViewRecords
+    RecordAction -->|Deactivate| DeactivateRec[Mark as Inactive]
+    DeactivateRec --> UpdateDB
+    RecordAction -->|View Profile| ProfileView
+    
+    %% SEARCH & FILTER
+    AdminMenu -->|Search & Filter| FilterModule[Apply Filters<br/>- Degree<br/>- Department<br/>- Year<br/>- Gender<br/>- Blood Group<br/>- Admission Year<br/>- Student ID]
+    
+    FilterModule --> QueryDB[(Query Database<br/>with Filters)]
+    QueryDB --> FilterResults[Display Filtered<br/>Student List]
+    FilterResults --> RecordAction
+    
+    %% PROFILE VIEW
+    AdminMenu -->|Student Profile| ProfileView[Student Profile View<br/>Complete Details<br/>Read-Only Format]
+    
+    ProfileView --> ProfileAction{Select Action}
+    ProfileAction -->|Generate ID| IDGen
+    ProfileAction -->|Edit| EditRecord
+    ProfileAction -->|Back| AdminDash
+    
+    %% ID CARD GENERATION
+    IDGen[Initiate ID Generation] --> MapData[Map Student Data to<br/>Vertical ID Card Template<br/>- Name<br/>- Photo<br/>- Degree<br/>- Department<br/>- Blood Group<br/>- Student ID]
+    
+    MapData --> GenBarcode[Generate Barcode<br/>Encode Student ID]
+    GenBarcode --> IDPreview[Display ID Card Preview]
+    
+    IDPreview --> AdminApprove{Admin<br/>Approval}
+    AdminApprove -->|Reject| ProfileView
+    AdminApprove -->|Approve| GenFinalID[Generate Final ID Card<br/>PDF/Image Format]
+    
+    GenFinalID --> StoreIDMeta[(Store ID Metadata<br/>- Issue Date<br/>- Validity Period<br/>- Status: Active)]
+    StoreIDMeta --> DownloadID[Download ID Card]
+    DownloadID --> AdminDash
+    
+    %% REPORTS MODULE
+    AdminMenu -->|Reports & Export| ReportType{Select Report Type<br/>- Year-wise<br/>- Degree-wise<br/>- Blood Group-wise<br/>- Department-wise}
+    
+    ReportType --> ApplyReportFilter[Apply Report Filters]
+    ApplyReportFilter --> GenReport[(Generate Report<br/>from Database)]
+    GenReport --> DisplayReport[Display Report Data]
+    DisplayReport --> ExportChoice{Export Format}
+    ExportChoice -->|CSV| ExportCSV[Download CSV]
+    ExportChoice -->|Excel| ExportExcel[Download Excel]
+    ExportCSV --> AdminDash
+    ExportExcel --> AdminDash
+    
+    %% STUDENT FLOW
+    RoleCheck -->|Student| StudentDash[Student Dashboard]
+    
+    StudentDash --> StudentMenu{Select Option}
+    StudentMenu -->|View Profile| StudentProfile[View Own Profile<br/>Read-Only]
+    StudentMenu -->|View ID Card| StudentID[View Generated ID Card<br/>Read-Only]
+    StudentMenu -->|Request Correction| CorrectionReq[Submit Correction Request]
+    
+    StudentProfile --> StudentDash
+    StudentID --> StudentDash
+    CorrectionReq --> NotifyAdmin[Notify Admin]
+    NotifyAdmin --> StudentDash
+    
+    %% ID VALIDITY & STATUS TRACKING
+    AdminMenu -->|ID Status Tracking| ValidityCheck[Check ID Validity Status]
+    ValidityCheck --> StatusDB[(Query Database<br/>for ID Status)]
+    StatusDB --> ClassifyStatus{Classify IDs}
+    ClassifyStatus -->|Active| ActiveList[Display Active IDs]
+    ClassifyStatus -->|Expired| ExpiredList[Display Expired IDs<br/>Auto-Flagged]
+    ClassifyStatus -->|Inactive| InactiveList[Display Inactive IDs]
+    
+    ActiveList --> AdminDash
+    ExpiredList --> AdminDash
+    InactiveList --> AdminDash
+    
+    %% AUDIT LOG
+    AdminMenu -->|Audit Log| AuditView[View Activity Log<br/>- Student Creation<br/>- Updates<br/>- ID Generation<br/>- Deactivation<br/>- Login Events]
+    AuditView --> AdminDash
+    
+    %% LOGOUT
+    AdminDash --> LogoutOption{Logout?}
+    StudentDash --> LogoutOption
+    LogoutOption -->|Yes| Logout[Terminate Session]
+    LogoutOption -->|No| AdminDash
+    Logout --> End([Application End])
+    
+    %% BACKGROUND PROCESSES
+    GenID -.->|Log Action| AuditLog[(Audit Log Database)]
+    UpdateDB -.->|Log Action| AuditLog
+    GenFinalID -.->|Log Action| AuditLog
+    DeactivateRec -.->|Log Action| AuditLog
+    
+    %% STYLING
+    classDef processClass fill:#4A90E2,stroke:#2E5C8A,stroke-width:2px,color:#fff
+    classDef decisionClass fill:#F39C12,stroke:#C87F0A,stroke-width:2px,color:#fff
+    classDef databaseClass fill:#27AE60,stroke:#1E8449,stroke-width:2px,color:#fff
+    classDef startEndClass fill:#E74C3C,stroke:#C0392B,stroke-width:3px,color:#fff
+    classDef inputClass fill:#9B59B6,stroke:#7D3C98,stroke-width:2px,color:#fff
+    
+    class Start,End startEndClass
+    class Validate,RoleCheck,AdminMenu,RecordAction,ProfileAction,AdminApprove,ReportType,ExportChoice,StudentMenu,LogoutOption,ClassifyStatus,ValidateForm decisionClass
+    class SaveDB,GenID,UpdateDB,QueryDB,StoreIDMeta,GenReport,StatusDB,AuditLog databaseClass
+    class Login,AuthInput,AddStudent,FilterModule inputClass
