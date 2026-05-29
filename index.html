@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student ID Management System</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header id="topNav" class="top-nav hidden">
+      <h1>Student ID Management</h1>
+      <div>
+        <span id="loggedInAs"></span>
+        <button class="btn btn-secondary" onclick="logout()">Logout</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="loginPage" class="page card">
+        <h2>Login</h2>
+        <p class="muted">Use <strong>admin@college.edu / admin123</strong> for admin access or <strong>student@college.edu / student123</strong> for student access.</p>
+        <label>Username <input type="text" id="username" placeholder="username" /></label>
+        <label>Password <input type="password" id="password" placeholder="password" /></label>
+        <button class="btn" onclick="login()">Login</button>
+        <p id="loginError" class="error"></p>
+      </section>
+
+      <section id="adminDashboard" class="page hidden">
+        <div class="grid summary-grid">
+          <article class="card"><h3>Total Students</h3><p id="totalStudents">0</p></article>
+          <article class="card"><h3>Active IDs</h3><p id="activeIds">0</p></article>
+          <article class="card"><h3>Expired IDs</h3><p id="expiredIds">0</p></article>
+          <article class="card"><h3>Recently Added</h3><p id="recentlyAdded">0</p></article>
+        </div>
+
+        <div class="grid two-col">
+          <section class="card">
+            <h2>Add New Student</h2>
+            <form id="studentForm" class="form-grid" onsubmit="addStudent(event)">
+              <input id="fullName" placeholder="Full Name" required />
+              <input id="dateOfBirth" type="date" required />
+              <select id="gender" required>
+                <option value="">Gender</option>
+                <option>Male</option>
+                <option>Female</option>
+                <option>Other</option>
+              </select>
+              <input id="bloodGroup" placeholder="Blood Group" required />
+              <input id="degree" placeholder="Degree" required />
+              <input id="department" placeholder="Department" required />
+              <input id="academicYear" placeholder="Academic Year" required />
+              <input id="admissionYear" type="number" placeholder="Admission Year" required />
+              <input id="contact" placeholder="Contact" required />
+              <input id="validUntil" type="date" required />
+              <button class="btn" type="submit">Save Student</button>
+            </form>
+          </section>
+
+          <section class="card">
+            <h2>Search & Filter</h2>
+            <div class="form-grid">
+              <input id="searchName" placeholder="Search by name / ID" oninput="renderStudents()" />
+              <input id="filterDegree" placeholder="Degree" oninput="renderStudents()" />
+              <input id="filterDepartment" placeholder="Department" oninput="renderStudents()" />
+              <input id="filterYear" placeholder="Academic Year" oninput="renderStudents()" />
+              <input id="filterGender" placeholder="Gender" oninput="renderStudents()" />
+              <input id="filterBlood" placeholder="Blood Group" oninput="renderStudents()" />
+              <input id="filterAdmissionYear" placeholder="Admission Year" oninput="renderStudents()" />
+            </div>
+          </section>
+        </div>
+
+        <section class="card">
+          <h2>Student Management</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Student ID</th>
+                <th>Full Name</th>
+                <th>Degree</th>
+                <th>Year</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="studentRows"></tbody>
+          </table>
+        </section>
+
+        <div class="grid two-col">
+          <section class="card">
+            <h2>ID Card Preview</h2>
+            <div id="idCardPreview" class="id-card muted">Select a student to generate ID card.</div>
+          </section>
+
+          <section class="card">
+            <h2>Reports</h2>
+            <button class="btn" onclick="generateReport('degree')">Degree-wise</button>
+            <button class="btn" onclick="generateReport('year')">Year-wise</button>
+            <button class="btn" onclick="generateReport('blood')">Blood group-wise</button>
+            <pre id="reportOutput" class="report"></pre>
+          </section>
+        </div>
+
+        <section class="card">
+          <h2>Audit Log</h2>
+          <table>
+            <thead>
+              <tr><th>Action</th><th>User</th><th>Description</th><th>Date & Time</th></tr>
+            </thead>
+            <tbody id="auditRows"></tbody>
+          </table>
+        </section>
+      </section>
+
+      <section id="studentDashboard" class="page hidden">
+        <article class="card">
+          <h2>Student Dashboard</h2>
+          <p class="muted">Read-only view of your profile and ID card.</p>
+          <div id="studentProfile"></div>
+          <button class="btn" onclick="showStudentIdCard()">View ID Card</button>
+          <div id="studentIdCard" class="id-card"></div>
+        </article>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
